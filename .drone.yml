@@ -1,0 +1,30 @@
+---
+kind: pipeline
+type: docker
+name: Uptime-Kuma
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  depth: 1
+
+steps:
+  - name: Deploy-to-Production
+    image: supporttools/kube-builder
+    settings:
+      kubernetes_server:
+        from_secret: k8s_prd_server
+      kubernetes_token:
+        from_secret: k8s_prd_token
+    commands:
+      - bash /usr/local/bin/init-kubectl
+      - if ! kubectl get ns uptime-kuma; then kubectl create ns uptime-kuma; fi
+      - kubectl annotate ns uptime-kuma --overwrite=true field.cattle.io/projectId=c-m-8kd54qrg:p-z57gr
+      - kubectl label ns uptime-kuma --overwrite=true field.cattle.io/projectId=p-z57gr
+      - kubectl label ns uptime-kuma team=mattox --overwrite
+      - kubectl label ns uptime-kuma app=uptime --overwrite
+      - kubectl label ns uptime-kuma ns-purge=false --overwrite
+      - kubectl -n uptime-kuma create configmap script --from-file recycle.sh --dry-run=client -o yaml | kubectl apply -f -
+      - kubectl apply -n uptime-kuma -f ./deploy/

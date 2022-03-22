@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: recycle
+  namespace: uptime-kuma
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: recycle
+  namespace: uptime-kuma
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: recycle
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: recycle
+subjects:
+- kind: ServiceAccount
+  name: recycle
+  namespace: uptime-kuma
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: recycle
+  namespace: uptime-kuma
+  labels:
+    app: recycle
+spec:
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccount: recycle
+          serviceAccountName: recycle
+          containers:
+          - name: recycle
+            image: rancherlabs/swiss-army-knife
+            imagePullPolicy: IfNotPresent
+            command: ["sh", "-c", "/root/bin/recycle.sh" ]
+            volumeMounts:
+            - mountPath: /root/bin/
+              name: script
+          volumes:
+          - configMap:
+              defaultMode: 420
+              name: script
+            name: script
+  schedule: */5 * * * *
+  successfulJobsHistoryLimit: 3
+  suspend: false
+---
