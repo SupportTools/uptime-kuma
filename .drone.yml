@@ -27,4 +27,4 @@ steps:
       - kubectl label ns uptime-kuma app=uptime --overwrite
       - kubectl label ns uptime-kuma ns-purge=false --overwrite
       - kubectl -n uptime-kuma create configmap script --from-file recycle.sh --dry-run=client -o yaml | kubectl apply -f -
-      - kubectl apply -n uptime-kuma -f ./deploy/
+      - kubectl -n uptime-kuma apply -f ./deploy/

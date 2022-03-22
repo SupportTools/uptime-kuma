@@ -6,10 +6,11 @@ metadata:
   labels:
     app: recycle
 spec:
-  concurrencyPolicy: Allow
+  concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      parallelism: 1
       template:
         spec:
           serviceAccount: recycle
@@ -18,7 +19,15 @@ spec:
           - name: recycle
             image: rancherlabs/swiss-army-knife
             imagePullPolicy: IfNotPresent
-            command: ["sh", "-c", "/root/bin/recycle.sh" ]
-  schedule: "*/5 * * * *"
+            command: ["sh", "-c", "bash /root/bin/recycle.sh" ]
+            volumeMounts:
+            - mountPath: /root/bin/
+              name: script
+          restartPolicy: Never
+          volumes:
+          - configMap:
+              name: script
+            name: script
+  schedule: "*/15 * * * *"
   successfulJobsHistoryLimit: 3
   suspend: false
