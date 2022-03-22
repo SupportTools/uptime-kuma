@@ -59,8 +59,9 @@ spec:
               name: script
           volumes:
           - configMap:
-              defaultMode: 420
-              name: script
+            defaultMode: 777
+            name: script
+            optional: false
   schedule: */5 * * * *
   successfulJobsHistoryLimit: 3
   suspend: false
