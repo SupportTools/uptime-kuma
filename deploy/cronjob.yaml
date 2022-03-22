@@ -61,7 +61,6 @@ spec:
           - configMap:
               defaultMode: 420
               name: script
-            name: script
   schedule: */5 * * * *
   successfulJobsHistoryLimit: 3
   suspend: false
