@@ -28,6 +28,6 @@ spec:
           name: script
           optional: false
         name: script
-  schedule: */5 * * * *
+  schedule: "*/5 * * * *"
   successfulJobsHistoryLimit: 3
   suspend: false
