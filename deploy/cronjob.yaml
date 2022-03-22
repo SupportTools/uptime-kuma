@@ -54,14 +54,6 @@ spec:
             image: rancherlabs/swiss-army-knife
             imagePullPolicy: IfNotPresent
             command: ["sh", "-c", "/root/bin/recycle.sh" ]
-            volumeMounts:
-            - mountPath: /root/bin/
-              name: script
-          volumes:
-          - configMap:
-            defaultMode: 777
-            name: script
-            optional: false
   schedule: */5 * * * *
   successfulJobsHistoryLimit: 3
   suspend: false
