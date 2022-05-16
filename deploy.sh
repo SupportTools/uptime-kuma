@@ -98,6 +98,9 @@ kubectl -n ${namespace} create secret docker-registry harbor-registry-secret \
 --docker-password=${DOCKER_PASSWORD} \
 --dry-run=client -o yaml | kubectl apply -f -
 
+echo "Deploying recycle script"
+kubectl -n ${namespace} create configmap script --from-file recycle.sh --dry-run=client -o yaml | kubectl apply -f -
+
 echo "Deploying uptime"
 helm upgrade --install uptime ./chart \
 --namespace ${namespace} \
