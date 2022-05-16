@@ -53,7 +53,7 @@ then
   hpa=false
   minReplicas=1
   maxReplicas=1
-  ingress='mattoxengineering.com'
+  ingress='uptime.support.tools'
   class="prd"
 else
   cluster='a0-rke2-devops'
