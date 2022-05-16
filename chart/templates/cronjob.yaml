@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  labels:
+    app: uptime
+    team: SupportTools
+    component: recycle
+  name: recycle
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      parallelism: 1
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - command:
+            - sh
+            - -c
+            - bash /root/bin/recycle.sh
+            image: support.tools/swiss-army-knife
+            imagePullPolicy: IfNotPresent
+            name: recycle
+            volumeMounts:
+            - mountPath: /root/bin/
+              name: script
+          serviceAccount: recycle
+          serviceAccountName: recycle
+          volumes:
+          - configMap:
+              defaultMode: 420
+              name: script
+            name: script
+  schedule: '*/15 * * * *'
+  successfulJobsHistoryLimit: 3
+  suspend: false

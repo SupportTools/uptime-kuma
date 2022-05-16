@@ -9,4 +9,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: recycle
-  namespace: uptime-kuma
+  namespace: {{.Release.Namespace}}

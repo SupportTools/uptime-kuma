@@ -1,7 +1,7 @@
 ---
 kind: pipeline
-type: docker
-name: Uptime-Kuma
+type: kubernetes
+name: Uptime
 
 platform:
   os: linux
@@ -10,21 +10,163 @@ platform:
 clone:
   depth: 1
 
+concurrency:
+  limit: 1
+
+environment:
+  DOCKER_HOST: tcp://docker-in-docker:2375
+  DOCKER_CLI_EXPERIMENTAL: enabled
+
 steps:
-  - name: Deploy-to-Production
-    image: supporttools/kube-builder
-    settings:
-      kubernetes_server:
-        from_secret: k8s_prd_server
-      kubernetes_token:
-        from_secret: k8s_prd_token
+  - name: Waiting for Docker to start
+    image: cube8021/docker-buildx:20.10.14-0.8.2
     commands:
-      - bash /usr/local/bin/init-kubectl
-      - if ! kubectl get ns uptime-kuma; then kubectl create ns uptime-kuma; fi
-      - kubectl annotate ns uptime-kuma --overwrite=true field.cattle.io/projectId=c-m-8kd54qrg:p-z57gr
-      - kubectl label ns uptime-kuma --overwrite=true field.cattle.io/projectId=p-z57gr
-      - kubectl label ns uptime-kuma team=mattox --overwrite
-      - kubectl label ns uptime-kuma app=uptime --overwrite
-      - kubectl label ns uptime-kuma ns-purge=false --overwrite
-      - kubectl -n uptime-kuma create configmap script --from-file recycle.sh --dry-run=client -o yaml | kubectl apply -f -
-      - kubectl -n uptime-kuma apply -f ./deploy/
+    - echo 'Waiting for docker to start...'
+    - while ! docker info; do sleep 1; done
+
+  - name: Docker Build
+    image: cube8021/docker-buildx:20.10.14-0.8.2
+    environment:
+      DOCKER_USERNAME:
+        from_secret: harbor-username
+      DOCKER_PASSWORD:
+        from_secret: harbor-password
+    commands:
+    - sh ./docker-build.sh
+
+  - name: Deploy-to-Master
+    image: supporttools/kube-builder:latest
+    environment:
+      DOCKER_USERNAME:
+        from_secret: harbor-username
+      DOCKER_PASSWORD:
+        from_secret: harbor-password
+      CATTLE_SERVER:
+        from_secret: cattle_server
+      CATTLE_ACCESS_KEY:
+        from_secret: cattle_accesskey
+      CATTLE_SECRET_KEY:
+        from_secret: cattle_secretkey        
+    commands:
+      - bash deploy.sh
+    when:
+      event:
+        - push
+        - pull_request
+
+  - name: Deploy-to-DEV
+    image: supporttools/kube-builder:latest
+    environment:
+      DOCKER_USERNAME:
+        from_secret: harbor-username
+      DOCKER_PASSWORD:
+        from_secret: harbor-password
+      CATTLE_SERVER:
+        from_secret: cattle_server
+      CATTLE_ACCESS_KEY:
+        from_secret: cattle_accesskey
+      CATTLE_SECRET_KEY:
+        from_secret: cattle_secretkey        
+    commands:
+      - bash deploy.sh dev
+    when:
+     event:
+     - deployment
+     - promote
+     target:
+     - dev
+
+  - name: Deploy-to-QAS
+    image: supporttools/kube-builder:latest
+    environment:
+      DOCKER_USERNAME:
+        from_secret: harbor-username
+      DOCKER_PASSWORD:
+        from_secret: harbor-password
+      CATTLE_SERVER:
+        from_secret: cattle_server
+      CATTLE_ACCESS_KEY:
+        from_secret: cattle_accesskey
+      CATTLE_SECRET_KEY:
+        from_secret: cattle_secretkey        
+    commands:
+      - bash deploy.sh qas
+    when:
+     event:
+     - deployment
+     - promote
+     target:
+     - qas
+
+  - name: Deploy-to-TST
+    image: supporttools/kube-builder:latest
+    environment:
+      DOCKER_USERNAME:
+        from_secret: harbor-username
+      DOCKER_PASSWORD:
+        from_secret: harbor-password
+      CATTLE_SERVER:
+        from_secret: cattle_server
+      CATTLE_ACCESS_KEY:
+        from_secret: cattle_accesskey
+      CATTLE_SECRET_KEY:
+        from_secret: cattle_secretkey        
+    commands:
+      - bash deploy.sh tst
+    when:
+     event:
+     - deployment
+     - promote
+     target:
+     - tst
+
+  - name: Deploy-to-STG
+    image: supporttools/kube-builder:latest
+    environment:
+      DOCKER_USERNAME:
+        from_secret: harbor-username
+      DOCKER_PASSWORD:
+        from_secret: harbor-password
+      CATTLE_SERVER:
+        from_secret: cattle_server
+      CATTLE_ACCESS_KEY:
+        from_secret: cattle_accesskey
+      CATTLE_SECRET_KEY:
+        from_secret: cattle_secretkey        
+    commands:
+      - bash deploy.sh stg
+    when:
+     event:
+     - deployment
+     - promote
+     target:
+     - stg
+
+  - name: Deploy-to-PRD
+    image: supporttools/kube-builder:latest
+    environment:
+      DOCKER_USERNAME:
+        from_secret: harbor-username
+      DOCKER_PASSWORD:
+        from_secret: harbor-password
+      CATTLE_SERVER:
+        from_secret: cattle_server
+      CATTLE_ACCESS_KEY:
+        from_secret: cattle_accesskey
+      CATTLE_SECRET_KEY:
+        from_secret: cattle_secretkey        
+    commands:
+      - bash deploy.sh prd
+    when:
+     event:
+     - deployment
+     - promote
+     target:
+     - prd
+
+services:
+- name: docker-in-docker
+  docker:
+  image: docker:20.10.14-dind
+  command: ["dockerd", "--host", "0.0.0.0", "--experimental"]
+  privileged: true
