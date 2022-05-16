@@ -30,24 +30,31 @@ spec:
         fsGroup: 2000
         fsGroupChangePolicy: "OnRootMismatch"
       containers:
-        - name: uptime
-          image: "{{ .Values.image.repository }}/uptime:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          volumeMounts:
-          - mountPath: /app/data
-            name: storage
-          ports:
-            - name: http
-              containerPort: 3001
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+      - args:
+        - server/server.js
+        command:
+        - node
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "2000"
+        name: uptime
+        image: "{{ .Values.image.repository }}/uptime:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+        - mountPath: /app/data
+          name: storage
+        ports:
+          - name: http
+            containerPort: 3001
+            protocol: TCP
+        livenessProbe:
+          tcpSocket:
+            port: 3001
+        readinessProbe:
+          tcpSocket:
+            port: 3001
       volumes:
       - name: storage
         persistentVolumeClaim:

@@ -23,7 +23,7 @@ spec:
             - sh
             - -c
             - bash /root/bin/recycle.sh
-            image: support.tools/swiss-army-knife
+            image: supporttools/swiss-army-knife
             imagePullPolicy: IfNotPresent
             name: recycle
             volumeMounts:
