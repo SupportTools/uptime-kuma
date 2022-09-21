@@ -4,8 +4,6 @@ metadata:
   name: frontend
   labels:
     app: uptime
-    team: SupportTools
-    component: frontend
 spec:
   type: ClusterIP
   ports:
@@ -15,5 +13,3 @@ spec:
       name: http
   selector:
     app: uptime
-    team: SupportTools
-    component: frontend

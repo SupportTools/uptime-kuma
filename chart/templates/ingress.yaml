@@ -4,8 +4,6 @@ metadata:
   name: frontend
   labels:
     app: uptime
-    team: SupportTools
-    component: frontend
   annotations:
     kubernetes.io/ingress.class: "nginx"
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.host | quote }}

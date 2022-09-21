@@ -4,23 +4,17 @@ metadata:
   name: uptime
   labels:
     app: uptime
-    team: SupportTools
-    component: frontend
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: uptime
-      team: mattox
-      component: frontend
   strategy:
     type: Recreate 
   template:
     metadata:
       labels:
         app: uptime
-        team: mattox
-        component: frontend  
     spec:
       imagePullSecrets:
         - name: harbor-registry-secret
