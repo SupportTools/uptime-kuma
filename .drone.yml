@@ -1,6 +1,5 @@
 ---
 kind: pipeline
-type: kubernetes
 name: Uptime
 
 platform:

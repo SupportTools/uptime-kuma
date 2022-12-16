@@ -2,7 +2,7 @@
 
 if [[ "$1" == 'dev' ]];
 then
-  cluster='a0-rke2-devops'
+  cluster='a1-rke2-prd'
   namespace='uptime-dev'
   imagetag=${BUILD_NUMBER}
   purge=false
@@ -13,7 +13,7 @@ then
   class="dev"
 elif [[ "$1" == 'qas' ]];
 then
-  cluster='a0-rke2-devops'
+  cluster='a1-rke2-prd'
   namespace='uptime-qas'
   imagetag=${BUILD_NUMBER}
   purge=false
@@ -24,7 +24,7 @@ then
   class="qas"
 elif [[ "$1" == 'tst' ]];
 then
-  cluster='a0-rke2-devops'
+  cluster='a1-rke2-prd'
   namespace='uptime-tst'
   imagetag=${BUILD_NUMBER}
   purge=false
@@ -35,7 +35,7 @@ then
   class="qas"
 elif [[ "$1" == 'stg' ]];
 then
-  cluster='a1-rke2-devops'
+  cluster='a1-rke2-prd'
   namespace='uptime-stg'
   imagetag=${BUILD_NUMBER}
   purge=false
@@ -46,7 +46,7 @@ then
   class="stg"
 elif [[ "$1" == 'prd' ]];
 then
-  cluster='a1-rke2-devops'
+  cluster='a1-rke2-prd'
   namespace='uptime-prd'
   imagetag=${BUILD_NUMBER}
   purge=false
@@ -56,7 +56,7 @@ then
   ingress='uptime.support.tools'
   class="prd"
 else
-  cluster='a0-rke2-devops'
+  cluster='a1-rke2-prd'
   namespace=uptime-mst
   imagetag=${DRONE_BUILD_NUMBER}
   purge=false
@@ -75,9 +75,6 @@ echo "Purge: ${purge}"
 bash /usr/local/bin/init-kubectl
 
 echo "Settings up project, namespace, and kubeconfig"
-wget -O rancher-projects https://raw.githubusercontent.com/SupportTools/rancher-projects/main/rancher-projects.sh
-chmod +x rancher-projects
-mv rancher-projects /usr/local/bin/
 rancher-projects --cluster-name ${cluster} --project-name SupportTools --namespace ${namespace} --create-project true --create-namespace true --create-kubeconfig true --kubeconfig ~/.kube/config
 if ! kubectl cluster-info
 then
