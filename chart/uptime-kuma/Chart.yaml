@@ -1,0 +1,17 @@
+apiVersion: v2
+name: uptime-kuma
+description: A Helm chart Uptime Kuma
+type: application
+version: RELEASE
+appVersion: DRONE_BUILD_NUMBER
+keywords:
+- kubernetes
+- k3s
+- maintenance
+home: https://github.com/SupportTools/uptime-kuma
+sources:
+  - https://github.com/SupportTools/uptime-kuma
+maintainers:
+  - name: mattmattox
+    email: mmattox@support.tools
+icon: https://raw.githubusercontent.com/SupportTools/uptime-kuma/main/assets/logo.svg

@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: Uptime
+name: uptime-kuma
 
 platform:
   os: linux
@@ -8,9 +8,6 @@ platform:
 
 clone:
   depth: 1
-
-concurrency:
-  limit: 1
 
 environment:
   DOCKER_HOST: tcp://docker-in-docker:2375
@@ -27,47 +24,19 @@ steps:
     image: cube8021/docker-buildx:20.10.14-0.8.2
     environment:
       DOCKER_USERNAME:
-        from_secret: harbor-username
+        from_secret: docker-username
       DOCKER_PASSWORD:
-        from_secret: harbor-password
+        from_secret: docker-password
     commands:
     - sh ./docker-build.sh
 
-  - name: Deploy-to-Master
+  - name: Helm-Chart-Dev
     image: supporttools/kube-builder:latest
     environment:
-      DOCKER_USERNAME:
-        from_secret: harbor-username
-      DOCKER_PASSWORD:
-        from_secret: harbor-password
-      CATTLE_SERVER:
-        from_secret: cattle_server
-      CATTLE_ACCESS_KEY:
-        from_secret: cattle_accesskey
-      CATTLE_SECRET_KEY:
-        from_secret: cattle_secretkey        
+      SSH_KEY:
+        from_secret: ssh_key    
     commands:
-      - bash deploy.sh
-    when:
-      event:
-        - push
-        - pull_request
-
-  - name: Deploy-to-DEV
-    image: supporttools/kube-builder:latest
-    environment:
-      DOCKER_USERNAME:
-        from_secret: harbor-username
-      DOCKER_PASSWORD:
-        from_secret: harbor-password
-      CATTLE_SERVER:
-        from_secret: cattle_server
-      CATTLE_ACCESS_KEY:
-        from_secret: cattle_accesskey
-      CATTLE_SECRET_KEY:
-        from_secret: cattle_secretkey        
-    commands:
-      - bash deploy.sh dev
+      - bash ./chart-build.sh -b ${DRONE_BUILD_NUMBER} -r ${RELEASE} -e dev
     when:
      event:
      - deployment
@@ -75,93 +44,19 @@ steps:
      target:
      - dev
 
-  - name: Deploy-to-QAS
+  - name: Helm-Chart-Prod
     image: supporttools/kube-builder:latest
     environment:
-      DOCKER_USERNAME:
-        from_secret: harbor-username
-      DOCKER_PASSWORD:
-        from_secret: harbor-password
-      CATTLE_SERVER:
-        from_secret: cattle_server
-      CATTLE_ACCESS_KEY:
-        from_secret: cattle_accesskey
-      CATTLE_SECRET_KEY:
-        from_secret: cattle_secretkey        
+      SSH_KEY:
+        from_secret: ssh_key    
     commands:
-      - bash deploy.sh qas
+      - bash ./chart-build.sh -b ${DRONE_BUILD_NUMBER} -r ${RELEASE} -e production
     when:
      event:
      - deployment
      - promote
      target:
-     - qas
-
-  - name: Deploy-to-TST
-    image: supporttools/kube-builder:latest
-    environment:
-      DOCKER_USERNAME:
-        from_secret: harbor-username
-      DOCKER_PASSWORD:
-        from_secret: harbor-password
-      CATTLE_SERVER:
-        from_secret: cattle_server
-      CATTLE_ACCESS_KEY:
-        from_secret: cattle_accesskey
-      CATTLE_SECRET_KEY:
-        from_secret: cattle_secretkey        
-    commands:
-      - bash deploy.sh tst
-    when:
-     event:
-     - deployment
-     - promote
-     target:
-     - tst
-
-  - name: Deploy-to-STG
-    image: supporttools/kube-builder:latest
-    environment:
-      DOCKER_USERNAME:
-        from_secret: harbor-username
-      DOCKER_PASSWORD:
-        from_secret: harbor-password
-      CATTLE_SERVER:
-        from_secret: cattle_server
-      CATTLE_ACCESS_KEY:
-        from_secret: cattle_accesskey
-      CATTLE_SECRET_KEY:
-        from_secret: cattle_secretkey        
-    commands:
-      - bash deploy.sh stg
-    when:
-     event:
-     - deployment
-     - promote
-     target:
-     - stg
-
-  - name: Deploy-to-PRD
-    image: supporttools/kube-builder:latest
-    environment:
-      DOCKER_USERNAME:
-        from_secret: harbor-username
-      DOCKER_PASSWORD:
-        from_secret: harbor-password
-      CATTLE_SERVER:
-        from_secret: cattle_server
-      CATTLE_ACCESS_KEY:
-        from_secret: cattle_accesskey
-      CATTLE_SECRET_KEY:
-        from_secret: cattle_secretkey        
-    commands:
-      - bash deploy.sh prd
-    when:
-     event:
-     - deployment
-     - promote
-     target:
-     - prd
+     - production
 
 services:
 - name: docker-in-docker

@@ -1,30 +1,34 @@
 #!/bin/sh
 
 echo "Setting docker environment"
-docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD harbor.support.tools
+if ! docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+then
+    echo "Docker login failed"
+    exit 128
+fi
 
 echo "Building..."
-if ! docker build -t harbor.support.tools/supporttools/uptime:${DRONE_BUILD_NUMBER} --cache-from harbor.support.tools/supporttools/uptime:latest -f Dockerfile .
+if ! docker build -t supporttools/uptime-kuma:${DRONE_BUILD_NUMBER} --cache-from supporttools/uptime-kuma:latest -f Dockerfile .
 then
     echo "Docker build failed"
     exit 127
 fi
 
 echo "Pushing..."
-if ! docker push harbor.support.tools/supporttools/uptime:${DRONE_BUILD_NUMBER}
+if ! docker push supporttools/uptime-kuma:${DRONE_BUILD_NUMBER}
 then
     echo "Docker push failed"
     exit 126
 fi
 echo "Tagging to latest and pushing..."
-if ! docker tag harbor.support.tools/supporttools/uptime:${DRONE_BUILD_NUMBER} harbor.support.tools/supporttools/uptime:latest
+if ! docker tag supporttools/uptime-kuma:${DRONE_BUILD_NUMBER} supporttools/uptime-kuma:latest
 then
     echo "Docker tag failed"
     exit 123
 fi
 
 echo "Pushing latest..."
-if ! docker push harbor.support.tools/supporttools/uptime:latest
+if ! docker push supporttools/uptime-kuma:latest
 then
     echo "Docker push failed"
     exit 122
