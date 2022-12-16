@@ -5,9 +5,8 @@ type: application
 version: RELEASE
 appVersion: DRONE_BUILD_NUMBER
 keywords:
-- kubernetes
-- k3s
-- maintenance
+- uptime
+- monitoring
 home: https://github.com/SupportTools/uptime-kuma
 sources:
   - https://github.com/SupportTools/uptime-kuma

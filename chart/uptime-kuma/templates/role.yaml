@@ -1,7 +1,10 @@
-kind: Role
+{{ if .Values.recycle.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
-  name: recycle
+  name: {{ include "uptime-kuma.fullname" . }}-recycle
+  labels:
+    {{- include "uptime-kuma.labels" . | nindent 4 }}
 rules:
 - apiGroups:
   - ""
@@ -11,3 +14,5 @@ rules:
   - get
   - list
   - delete
+{{ end }}
+{{ if .Values.recycle.enabled }}

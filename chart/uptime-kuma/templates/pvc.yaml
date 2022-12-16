@@ -1,13 +1,17 @@
+{{ if .Values.storage.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: {{ include "uptime-kuma.fullname" . }}
   labels:
-    app: uptime-kuma
-  name: uptime
+    {{- include "uptime-kuma.labels" . | nindent 4 }}
 spec:
   accessModes:
-  - ReadWriteOnce
+    - {{ .Values.storage.accessMode }}
   resources:
     requests:
-      storage: 5Gi
-  storageClassName: freenas-iscsi-csi
+      storage: {{ .Values.storage.size }}
+  {{- if .Values.storage.storageClass }}
+  storageClassName: {{ .Values.storage.storageClass }}
+  {{- end }}
+{{- end }}

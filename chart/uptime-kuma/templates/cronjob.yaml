@@ -1,42 +1,28 @@
-apiVersion: batch/v1
+{{ if .Values.recycle.enabled }}
+apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
+  name: {{ include "uptime-kuma.fullname" . }}-recycle
   labels:
-    app: uptime
-    team: SupportTools
-    component: recycle
-  name: recycle
+    {{- include "uptime-kuma.labels" . | nindent 4 }}
 spec:
-  concurrencyPolicy: Forbid
-  failedJobsHistoryLimit: 1
+  schedule: {{ .Values.recycle.schedule }}
   jobTemplate:
-    metadata:
-      creationTimestamp: null
     spec:
-      parallelism: 1
       template:
-        metadata:
-          creationTimestamp: null
         spec:
+          serviceAccountName: {{ include "uptime-kuma.serviceAccountName" . }}
           containers:
-          - command:
-            - sh
-            - -c
-            - bash /root/bin/recycle.sh
-            image: supporttools/swiss-army-knife
-            imagePullPolicy: IfNotPresent
-            name: recycle
-            volumeMounts:
-            - mountPath: /root/bin/
-              name: script
-          serviceAccount: recycle
-          serviceAccountName: recycle
+            - name: recycle
+              image: {{ .Values.recycle.image.repository }}:{{ .Values.recycle.image.tag }}
+              imagePullPolicy: {{ .Values.recycle.image.pullPolicy }}
+              command: ["/bin/sh", "-c", "bash /root/bin/recycle.sh"]
+              volumeMounts:
+                - mountPath: /root/bin/
+                  name: script
           restartPolicy: Never
           volumes:
-          - configMap:
-              defaultMode: 420
-              name: script
-            name: script
-  schedule: '*/15 * * * *'
-  successfulJobsHistoryLimit: 3
-  suspend: false
+            - name: script
+              configMap:
+                name: {{ include "uptime-kuma.fullname" . }}-recycle
+{{ end }}

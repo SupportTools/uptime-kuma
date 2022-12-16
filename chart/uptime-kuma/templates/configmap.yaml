@@ -1,0 +1,22 @@
+{{ if .Values.recycle.enabled }}
+apiVersion: configmap/v1
+kind: ConfigMap
+metadata:
+  name: {{ include "uptime-kuma.fullname" . }}-recycle
+  labels:
+    {{- include "uptime-kuma.labels" . | nindent 4 }}
+data:
+  recycle.sh: |
+    #!/bin/bash
+    # Recycle script for Uptime Kuma
+    #
+    # This script will delete any pods that are in a failed or crashing state.
+    #
+    echo "Looking for failed or crashing pods"
+    for pod in `kubectl get pods -l app=uptime-kuma -o go-template='{{ range  $item := .items }}{{ range .status.conditions }}{{ if (or (and (eq .type "PodScheduled") (eq .status "False")) (and (eq .type "Ready") (eq .status "False"))) }}{{ $item.metadata.name}} {{ end }}{{ end }}{{ end }}'`
+    do
+    kubectl delete pod $pod
+    done
+    echo "Done"
+    exit 0
+{{ end }}
