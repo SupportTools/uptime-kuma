@@ -79,8 +79,8 @@ storage:
   existingClaim: ""
 
 recycle:
-  enabled: false
-  schedule: "0 0 * * *"
+  enabled: true
+  schedule: "*/15 * * * *"
   historyLimit: 3
   suspend: false
   concurrencyPolicy: Forbid
@@ -93,4 +93,3 @@ recycle:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  
