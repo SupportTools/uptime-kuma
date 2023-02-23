@@ -14,8 +14,8 @@ spec:
           serviceAccountName: {{ include "uptime-kuma.serviceAccountName" . }}
           containers:
             - name: recycle
-              image: "{{ .Values.recycle.image.repository }}:{{ .Values.recycle.image.tag | default .Chart.AppVersion }}"
-              imagePullPolicy: {{ .Values.recycle.image.pullPolicy }}
+              image: "supporttools/kube-builder:latest"
+              imagePullPolicy: IfNotPresent
               command: ["/bin/sh", "-c", "bash /root/bin/recycle.sh"]
               volumeMounts:
                 - mountPath: /root/bin/
