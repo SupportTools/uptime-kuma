@@ -2,7 +2,7 @@ apiVersion: k3d.io/v1alpha3
 kind: Simple
 name: drone
 servers: 1
-agents: 3
+agents: 1
 options:
   k3s:
     extraArgs:
