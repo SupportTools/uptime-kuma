@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+CPWD=$(pwd)
+
 help() {
 
   echo "Build Script
@@ -76,7 +78,7 @@ else
 fi
 
 echo "Copying package into repo..."
-cp /drone/src/uptime-kuma-*.tgz .
+cp ${CPWD}/uptime-kuma-*.tgz .
 
 echo "Reindexing repo..."
 if [[ ${Environment} == "production" ]]
