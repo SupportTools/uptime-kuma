@@ -67,7 +67,7 @@ steps:
 
 services:
   - name: k3dsvc
-    image: rancher/k3d:5.0.0-rc.4-dind
+    image: rancher/k3d:latest-dind
     privileged: true    
     commands:
       - rm -f ci/kubeconfig.yaml
