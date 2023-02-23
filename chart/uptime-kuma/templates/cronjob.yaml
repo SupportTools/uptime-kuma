@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "uptime-kuma.labels" . | nindent 4 }}
 spec:
-  schedule: {{ .Values.recycle.schedule }}
+  schedule: "{{ .Values.recycle.schedule }}"
   jobTemplate:
     spec:
       template:
