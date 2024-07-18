@@ -1,4 +1,10 @@
 FROM louislam/uptime-kuma:latest
-COPY entrypoint.sh /app/extra/entrypoint.sh
-RUN chmod +x /app/extra/entrypoint.sh
-ENTRYPOINT ["/app/extra/entrypoint.sh"]
+
+# Create a new user and switch to that user
+RUN useradd -r -u 1001 appuser
+RUN chown -R appuser:appuser /app/data
+USER appuser
+
+# Set the entrypoint and command to run the application
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "node", "server/server.js"]
+CMD []

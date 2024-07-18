@@ -1,4 +1,4 @@
-{{ if .Values.recycle.enabled }}
+{{- if .Values.recycle.enabled }}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
@@ -25,4 +25,4 @@ spec:
             - name: script
               configMap:
                 name: {{ include "uptime-kuma.fullname" . }}-recycle
-{{ end }}
+{{- end }}

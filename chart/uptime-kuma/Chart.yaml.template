@@ -2,11 +2,11 @@ apiVersion: v2
 name: uptime-kuma
 description: A Helm chart Uptime Kuma
 type: application
-version: 0.1.0
-appVersion: 0.1.0
+version: ${CHART_VERSION}
+appVersion: ${APP_VERSION}
 keywords:
-  - uptime
-  - monitoring
+- uptime
+- monitoring
 home: https://github.com/SupportTools/uptime-kuma
 sources:
   - https://github.com/SupportTools/uptime-kuma

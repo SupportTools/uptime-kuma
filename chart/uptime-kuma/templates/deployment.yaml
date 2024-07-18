@@ -34,11 +34,11 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{ if .Values.storage.enabled }}
+          {{- if .Values.storage.enabled }}
           volumeMounts:
             - mountPath: /app/data
               name: storage
-          {{ end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: 3001
@@ -53,12 +53,12 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{ if .Values.storage.enabled }}
+      {{- if .Values.storage.enabled }}
       volumes:
         - name: storage
           persistentVolumeClaim:
             claimName: {{ include "uptime-kuma.fullname" . }}
-      {{ end }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
