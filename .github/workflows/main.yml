@@ -28,7 +28,7 @@ jobs:
             --platform linux/amd64 \
             --pull \
             --cache-from supporttools/uptime-kuma:latest \
-            -t supporttools/uptime-kuma:"v${{ github.run_number }}" \
+            -t supporttools/uptime-kuma:"v2.${{ github.run_number }}" \
             -t supporttools/uptime-kuma:latest \
             --push \
             -f Dockerfile .
@@ -50,9 +50,9 @@ jobs:
 
       - name: Package Helm chart
         run: |
-          export CHART_VERSION="v${{ github.run_number }}"
-          export APP_VERSION="v${{ github.run_number }}"
-          export IMAGE_TAG="v${{ github.run_number }}"
+          export CHART_VERSION="v2.${{ github.run_number }}"
+          export APP_VERSION="v2.${{ github.run_number }}"
+          export IMAGE_TAG="v2.${{ github.run_number }}"
           echo "CHART_VERSION=${CHART_VERSION}"
           echo "APP_VERSION=${APP_VERSION}"
           echo "IMAGE_TAG=${IMAGE_TAG}"
