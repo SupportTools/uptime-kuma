@@ -3,8 +3,8 @@ FROM louislam/uptime-kuma:latest
 # Create a new user and switch to that user
 RUN useradd -r -u 1001 appuser
 
-# Create the /app/data directory and change its ownership
-RUN mkdir -p /app/data && chown -R appuser:appuser /app/data
+# Create necessary directories and change their ownership
+RUN mkdir -p /app/data/upload /app/data/error.log && chown -R appuser:appuser /app/data
 
 USER appuser
 
